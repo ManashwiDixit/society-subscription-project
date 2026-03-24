@@ -1,4 +1,4 @@
-// dummy data
+
 "use client";
 import {useState} from "react";
 import {Pencil, Trash2 } from "lucide-react";
@@ -33,13 +33,14 @@ export default function FlatsTable({flats, onDelete, onEdit}) {
 
         <tbody>
           {flats.map((flat) => (
-            <tr key={flat.id} className="border-b">
+            <tr key={flat.id  ?? Math.random()} className="border-b">
 
-              <td className="py-2">{flat.flat}</td>
+              <td className="py-2">{flat.flatNumber}</td>
               <td>{flat.type}</td>
               <td>{flat.owner}</td>
               <td>{flat.email}</td>
               <td>{flat.phone}</td>
+   
               <td>
               <span
                className={`px-2 py-1 rounded text-sm ${
@@ -53,7 +54,7 @@ export default function FlatsTable({flats, onDelete, onEdit}) {
              </td>
 
              <td>
-             < div className="flex gap-3 items-center">
+             <div className="flex gap-3 items-center">
              <button onClick={()=>onEdit(flat)}
              className="text-blue-600 hover:text-blue-800 rounded-lg ">
                   <Pencil size={22} />

@@ -1,56 +1,108 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function PayNowPage(){
 
   const router = useRouter();
 
-  const [loading,setLoading] = useState(false);
-  const [success,setSuccess] = useState(false);
-  const [method,setMethod] = useState(""); 
+  const [amount , setAmount] = useState("");
+  const [ method, setMethod] = useState("");
+  const [record, setRecord] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [month, setMonth] = useState("");
 
-  const amount = 1500;
-  const flat = "A101";
-  const month = "February";
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-  const handlePayment = ()=>{
+    fetch("http://localhost:5000/api/monthly-records/user", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }).then(res => res.json())
+    .then(data => {console.log("USER RECORD", data);
+      setRecord(data);
+      setMonth(data.month);
+    });
+  }, []);
+ 
 
-    if(!method){
-      alert("Please select a payment method");
+  const handlePayment = async (e)=>{
+      e.preventDefault
+    if(!amount || !method){
+      alert("Fill all fields");
       return;
     }
+    const token = localStorage.getItem("token");
 
-    setLoading(true);
+    try{
+      const res = await fetch("http://localhost:5000/api/payments",
+        {
+          method: "POST",
+          headers:{
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amountPaid: Number(amount),
+            mode: method,
+            month: month,
+          }),
+        }
+      );
 
-    setTimeout(()=>{
-      setLoading(false);
-      setSuccess(true);
-    },2000);
+      const data = await res.json();
+      if(!res.ok) {
+        alert(data.error || "payment failed");
+        return;
+      }
+      alert("payment successful");
+     
+        setSuccess(true);
+      console.log("PAYMENT:", data);
+    
+
+      
+
+      
+
+    }
+    catch(err){
+      console.log(err);
+      alert("Payment failed")
+
+    }
   };
-       
-  // success screen
-  if(success){
-    return(
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  
+if(success) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-white p-8 rounded-xl shadow-md text-center">
+        <h1 className="text-2xl font-bold mb-4 text-green-600">
+          Payment Successful 
+        </h1>
+        <p><strong>Flat:</strong>
+        {record?.flat?.flatNumber}</p>
+        <p><strong>Month:</strong>
+        {record?.month}</p>
+        <p><strong>Amount:</strong>
+        {amount}</p>
+        <p><strong>Mode:</strong>
+        {method}</p>
 
-        <div className="bg-white p-8 rounded-xl shadow-md text-center">
-
-          <h1 className="text-2xl font-bold mb-4 text-green-600">
-            Payment Successful 🎉
-          </h1>
-
-          <p>Flat: {flat}</p>
-          <p>Month: {month}</p>
-          <p>Amount: ₹{amount}</p>
-          <p>Mode: {method}</p> {/* ✅ show method */}
-
-        </div>
-
+        <button
+        onClick={()=> router.push("/user/dashboard")}
+        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
+          Go to Dashboard
+        </button>
       </div>
-    )
-  }
+    </div>
+  )
+}
+
+if(!record) return <p>Loading...</p>;
+  
 
   return(
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -62,9 +114,11 @@ export default function PayNowPage(){
         </h1>
 
         <div className="space-y-3 mb-6">
-          <p><strong>Flat:</strong> {flat}</p>
-          <p><strong>Month:</strong> {month}</p>
-          <p><strong>Amount:</strong> ₹{amount}</p>
+          <p><strong>Flat:</strong> {record.flat}</p>
+          <p><strong>Month:</strong> {record.month}</p>
+          <p><strong>Total Amount:</strong> ₹{record.amount}</p>
+           <p><strong>Paid:</strong> ₹{record.amountPaid}</p>
+            <p><strong>Remaining:</strong> ₹{record.amount - record.amountPaid}</p>
         </div>
 
         {/* ✅ Payment Methods */}
@@ -104,13 +158,19 @@ export default function PayNowPage(){
               </div>
 
             </div>
+            <input
+            type="number"
+            placeholder="Enter amount"
+            value= {amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="border w-full p-2 rounded mb-4"/>
 
         <button
           onClick={handlePayment}
-          disabled={loading}
+          
           className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700"
         >
-          {loading ? "Processing..." : "Pay Now"}
+          Pay Now
         </button>
 
         <button

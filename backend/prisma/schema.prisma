@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Flat {
+  id        String   @id @default(uuid())
+  flatNumber String
+  type      String
+  owner     String
+  email     String
+  phone     String
+  status    String   // Occupied / Vacant
+  users     User[]
+
+  monthlyRecords MonthlyRecord[] 
+  createdAt DateTime @default(now())
+}
+
+model SubscriptionPlan {
+  id     String @id @default(uuid())
+  type   String @unique  // 1BHK, 2BHK, 3BHK
+  amount Int
+}
+
+model MonthlyRecord {
+  id        String  @id @default(uuid())
+  flatId    String
+  flat      Flat    @relation(fields: [flatId], references: [id])
+  month     String
+  amount    Int
+  status    String 
+  amountPaid Int @default(0)
+  createdAt DateTime @default(now())
+  @@unique([flatId, month]) 
+}
+
+model Payment {
+  id     String @id @default(uuid())
+  flat   String
+  month  String
+  amount Int
+  amountPaid Int  @default(0)
+  mode   String
+  status String
+  date   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  phone    String
+  password String
+  role     String  // admin / user
+  flatId  String?
+  flat    Flat?  @relation(fields: [flatId], references: [id])
+}

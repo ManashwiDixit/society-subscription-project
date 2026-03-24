@@ -1,45 +1,40 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditSubscriptionModal from "@/components/modals/EditSubscriptionModal";
 
 export default function SubscriptionsPage(){
 
-    const [plans , setPlans] = useState([
-        {
-        id:1,
-        type:"1BHK",
-        amount:1000
-
-        },
-        {
-        id:2,
-        type:"2BHK",
-        amount:1500
-        },
-        {
-        id:3,
-        type:"3BHK",
-        amount:1800
-
-        }
-
-    ]);
+    const [plans , setPlans] = useState([]);
 
          const [openModal,setOpenModal] = useState(false);
          const [selectedPlan,setSelectedPlan] = useState(null);
+
+         useEffect(() => {
+        fetch("http://localhost:5000/api/subscriptions")
+        .then(res => res.json())
+        .then(data => setPlans(data));
+        }, []);
 
          const handleEditPlan = (plan)=>{
          setSelectedPlan(plan);
          setOpenModal(true);
          };
 
-        const handleSavePlan = (updatedPlan)=>{
+        const handleSavePlan = async  (updatedPlan)=>{
 
-        const updatedPlans = plans.map((p)=>
-        p.id === updatedPlan.id ? updatedPlan : p
-        );
+            const res = await fetch(`http://localhost:5000/api/subscriptions/${updatedPlan.id}`,
+             {
+               method: "PUT",
+               headers: {
+               "Content-Type": "application/json"
+               },
+               body: JSON.stringify({ amount: updatedPlan.amount })
+             }
+          );
 
-        setPlans(updatedPlans);
+        const data = await res.json();
+
+        setPlans((prev) => prev.map((p)=>(p.id === data.id? data:p)));
 
         };
 

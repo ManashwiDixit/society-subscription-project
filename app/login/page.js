@@ -1,14 +1,54 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function UserLogin(){
+  const [email, setEmail] = useState("");
+  
+  const [password, setPassword] = useState("");
+
 
   const router = useRouter();
 
-  // temporary login
-  const handleLogin = ()=>{
-    router.push("/user/dashboard");
+  
+  
+  const handleLogin = async  ()=>{
+      if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+      }
+
+    try{
+
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error);
+      return;
+    }
+
+      if(data.user.role !== "user"){
+        alert("Not a resident account");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+
+       router.push("/user/dashboard");
+    }
+    catch(err){
+      console.log(err);
+    }
+   
   };
 
   return (
@@ -25,13 +65,20 @@ export default function UserLogin(){
         <input
           type="email"
           placeholder="Enter email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
           className="w-full border p-3 rounded mb-4"
         />
+       
+
+       
 
         {/* password input */}
         <input
           type="password"
           placeholder="Enter password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
           className="w-full border p-3 rounded mb-6"
         />
 

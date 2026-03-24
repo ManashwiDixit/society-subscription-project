@@ -1,14 +1,28 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function UserDashboard(){
 
-    const currentMonth = "january";
-    const amount = 1500;
-    const status = "Pending";
+    const [record , setRecord] = useState(null);
+
 
     const router = useRouter();
+
+    useEffect(() =>{
+        const token = localStorage.getItem("token");
+        fetch("http://localhost:5000/api/monthly-records/user", {
+          headers: {
+           "Authorization": `Bearer ${token}`
+      }
+    }).then(res => res.json())
+    .then(data => {
+        console.log("USER RECORDED", data);
+        setRecord(data);
+    })
+        
+    }, []);
+    if(!record) return <p>Loading...</p>
 
     return(
         <div className="p-6">
@@ -19,23 +33,24 @@ export default function UserDashboard(){
 
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <p className="text-gray-500">Current Month</p>
-                <h2 className="text-xl font-bold">{currentMonth}</h2>
+                <h2 className="text-xl font-bold">{record.month}</h2>
+
             </div>
 
                 {/* Amount */}
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <p className="text-gray-500">Amount</p>
-                <h2 className="text-xl font-bold">₹{amount}</h2>
+                <h2 className="text-xl font-bold">₹{record.amount}</h2>
             </div>
 
              <div>
                   <p className="text-gray-500">Status</p>
                   <span className={`px-3 py-1 rounded text-sm ${
-                    status === "Paid"
+                    record.status === "Paid"
                      ? "bg-green-100 text-green-700"
                      : "bg-yellow-100 text-yellow-700"
                      }`}>
-                    {status}
+                    {record.status}
                    </span>
 
              </div>
@@ -44,7 +59,7 @@ export default function UserDashboard(){
 
           {/* pay now button */}
 
-          {status === "Pending" &&(
+          {record.status !== "Paid" &&(
 
             <button
              onClick={() => router.push("/user/pay-now")}

@@ -1,40 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function PaymentEntryPage(){
 
 const [flat,setFlat] = useState("");
 const [month,setMonth] = useState("");
-const [amount,setAmount] = useState("");
-const [mode,setMode] = useState("");
 
-const handleSubmit = (e)=>{
+const [mode,setMode] = useState("");
+const [flats, setFlats] = useState([]);
+const [amountPaid, setAmountPaid] = useState("");                                                                                                                                                                                                                                                                       
+
+useEffect(() => {
+  fetch("http://localhost:5000/api/flats")
+    .then(res => res.json())
+    .then(data => setFlats(data))
+    .catch(err => console.log(err));
+}, []);
+
+const handleSubmit = async (e)=>{
 e.preventDefault();
 
-if(!flat || !month || !amount || !mode){
+ console.log("FORM SUBMITTED 🚀"); 
+ console.log("SENDING DATA:", {
+  flat,
+  month,
+  amountPaid,
+  mode,
+});
+
+if(!flat || !month || !amountPaid || !mode){
    alert("Please fill all fields");
 return;
 }
+try{
+  const token = localStorage.getItem("token");
 
-// simulate payment record
-const payment = {
-   flat,
-   month,
-   amount,
-   mode,
-   status:"Paid"
-};
+  const res = await fetch("http://localhost:5000/api/payments", {
 
-console.log("Payment Saved:",payment);
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        flat,
+        month,
+        amountPaid: Number(amountPaid),
+  
+        mode,
+      }),
+    });
 
-alert("Payment recorded successfully ✅");
+    const data = await res.json();
+    console.log("Payment Saved: ", data);
 
-// reset form
+    alert("Payment recorded successfully ");
+    window.location.href = "/admin/monthly-records";
+
+
+    // reset form
 setFlat("");
 setMonth("");
-setAmount("");
+setAmountPaid("");
 setMode("");
+console.log("API RESPONSE:", data);
+} catch(err) {
+  console.log(err);
+  alert("Error saving payment ");
+}
+
+
+
 };
 
 return(
@@ -57,9 +94,11 @@ return(
             className="border w-full p-2 rounded"
            >
              <option value="">Select Flat</option>
-             <option>A101</option>
-             <option>B203</option>
-             <option>C302</option>
+             { Array.isArray(flats) && flats.map((f)=>(
+                <option key={f.id} value={f.flatNumber}>
+                {f.flatNumber}
+                </option>
+             ))}
           </select>
 
 {/* Month */}
@@ -69,19 +108,33 @@ return(
             className="border w-full p-2 rounded"
           >
              <option value="">Select Month</option>
-             <option>January</option>
-             <option>February</option>
-             <option>March</option>
+             
+               
+               <option>January</option>
+               <option>February</option>
+               <option>March</option>
+               <option>April</option>
+               <option>May</option>
+               <option>June</option>
+               <option>July</option>
+               <option>August</option>
+               <option>September</option>
+               <option>October</option>
+               <option>November</option>
+               <option>December</option>
           </select>
 
-{/* Amount */}
+          {/* //for keeping track */}
+
              <input
-               type="number"
-               placeholder="Enter Amount"
-               value={amount}
-               onChange={(e)=>setAmount(e.target.value)}
-               className="border w-full p-2 rounded"
-            />
+             type="number"
+             placeholder="Amount Paid"
+             value={amountPaid}
+             onChange={(e)=>setAmountPaid(e.target.value)}
+             className="border w-full p-2 rounded"
+             />
+ 
+         
 
 {/* Mode */}
              <select
@@ -96,6 +149,7 @@ return(
 
                  <button
                    type="submit"
+                   
                    className="bg-blue-600 text-white px-4 py-2 rounded w-full"
                     >
                      Save Payment

@@ -3,7 +3,7 @@
 import ReactPaginate from "react-paginate";
 import FlatsTable from "@/components/tables/FlatsTable";
 import AddFlatModal from "@/components/modals/AddFlatModal";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 
 export default function FlatsPage(){
 
@@ -15,94 +15,76 @@ export default function FlatsPage(){
 
     const [selectedFlat, setSelectedFlat] = useState(null);
 
+   const [flats, setFlats] = useState([]);
    
-
-    const [flats , setFlats] = useState([
-        {
-        id:1,
-        flat:"A101",
-        type:"2BHK",
-        owner:"Rahul Sharma",
-        email:"rahul@email.com",
-        phone:"9876543210",
-        status:"Occupied"
-    },
-    {
-        id:2,
-        flat:"B203",
-        type:"1BHK",
-        owner:"Priya",
-        email:"priya@email.com",
-        phone:"9876111111",
-        status:"Vacant"
-    },
-    {
-        id:3,
-        flat:"C302",
-        type:"2BHK",
-        owner:"Amit Verma",
-        email:"amit@email.com",
-        phone:"9222224321",
-        status:"Occupied"
-
-    },
-    {
-        
-        id:4,
-        flat:"D401",
-        type:"2BHK",
-        owner:"Sneha Gupta",
-        email:"sneha@email.com",
-        phone:"9876543211",
-        status:"Vacant"
-
-    },
-    {
-        id:5,
-        flat:"A203",
-        type:"3BHK",
-        owner:"saloni rana",
-        email:"saloni@email.com",
-        phone:"3452167891",
-        status:"Vacant"
-
-    },
-    {
-        id:6,
-        flat:"B301",
-        type:"1BHK",
-        owner:"Yashika singh",
-        email:"yashika@email.com",
-        phone:"1233214532",
-        status:"Occupied"
-    }
-    ]);
+   useEffect(() => {
+       fetch("http://localhost:5000/api/flats")
+         .then(res => res.json())
+         .then(data => {
+              console.log("FLATS from api:", data); 
+    
+            setFlats(data)})
+         .catch(err => console.log(err));
+       }, []);
+   
     //filtered data logic
-     const filteredFlats = flats.filter((flat) =>
-     flat.flat.toLowerCase().includes(search.toLowerCase()) ||
-     flat.owner.toLowerCase().includes(search.toLowerCase())
-     );
+     const filteredFlats = flats.filter((flat) =>{
+        if(!search ) return true;
+        return(
+             (flat.flatNumber || "").toLowerCase().includes(search.toLowerCase()) ||
+             (flat.owner || "").toLowerCase().includes(search.toLowerCase())
+           );
+
+        
+     });
+    
 
      //to calculate current flats
      const endOffset = itemOffset + flatsPerPage;
-     const currentFlats = filteredFlats.slice(itemOffset,endOffset);
+     const currentFlats = filteredFlats.length>0
+     ? filteredFlats.slice(itemOffset,endOffset) : [];
 
      //total pages
-     const pageCount = Math.ceil(filteredFlats.length/flatsPerPage);
+     const pageCount = Math.max(1, Math.ceil(filteredFlats.length/flatsPerPage));
 
-     const handleAddFlat = (newFlat) => {
+     const handleAddFlat = async (newFlat) => {
+         try {
+            const token = localStorage.getItem("token");
+            console.log("TOKEN:", token);
 
-     const exists = flats.find((f) => f.id === newFlat.id);
+         const res = await fetch("http://localhost:5000/api/flats", {
+         method: "POST",
+         headers: {
+         "Content-Type": "application/json",
+         "Authorization": `Bearer ${token}`,
+         },
+         body: JSON.stringify(newFlat)
+        });
 
-     if (exists) {
-     const updatedFlats = flats.map((f) =>
-      f.id === newFlat.id ? newFlat : f
-     );
+        const data = await res.json();
+        console.log("new flat response", data);
+        if(data.error){
+            alert(data.error)
+            return;
+        }
+        const updated = await fetch("http://localhost:5000/api/flats", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+        });
+        const updatedData = await updated.json();
 
-     setFlats(updatedFlats);
-     } else {
-     setFlats([...flats, newFlat]);
-     }
+        setFlats(updatedData);
+        //reset pagination
+        setItemOffset(0);
+
+
+      
+
+  } catch (err) {
+    console.log(err);
+  }
+
      };
 
      //handle page chnage
@@ -116,15 +98,49 @@ export default function FlatsPage(){
 
       };
  
-    const handleDeleteFlat = (id)=>{
-        const updatedFlats = flats.filter((flat)=>flat.id !==id);
-        setFlats(updatedFlats);
-    };
-    const handleEditFlat = (flat) => {
-    setSelectedFlat(flat);
-    setOpenModal(true);
-    };
+    const handleDeleteFlat = async (id)=>{
+        try{
+            await fetch(`http://localhost:5000/api/flats/${id}`, {
+                method: "DELETE"
+            });
 
+            setFlats((prev)=>(prev.filter((f)=>(f.id !== id))));
+
+        }  catch(err){
+            console.log(err);
+        }
+    };
+  
+      const handleEditFlat = async (updatedFlat) => {
+     try {
+      const res = await fetch(
+      `http://localhost:5000/api/flats/${updatedFlat.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedFlat)
+      }
+    );
+
+    const data = await res.json();
+
+    setFlats(prev =>
+      prev.map(f => (f.id === data.id ? data : f))
+    );
+
+    } catch (err) {
+    console.log(err);
+     }
+    
+
+
+     };
+
+ 
+
+    
     return(
       <div className="p-6"> 
       
@@ -155,18 +171,24 @@ export default function FlatsPage(){
         + Add Flat
         </button>
 
+      
+
         </div>
 
         {/* flats table */}
 
-        <FlatsTable flats = {currentFlats} onDelete = {handleDeleteFlat}
-         onEdit = {handleEditFlat}/>
+        <FlatsTable flats = {currentFlats}  onDelete = {handleDeleteFlat}
+         onEdit = {(flat) => {
+                 setSelectedFlat(flat);
+                 setOpenModal(true);
+            }}/>
         <AddFlatModal
            isOpen={openModal}
            onClose={()=>{setOpenModal(false);
                         setSelectedFlat(null);
            }}
            onAddFlat={handleAddFlat}
+             onEditFlat={handleEditFlat}
           
            editFlat={selectedFlat}
         />
