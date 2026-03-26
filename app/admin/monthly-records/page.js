@@ -9,7 +9,7 @@ export default function MonthlyRecordsPage() {
   const searchParams = useSearchParams();
   const refresh = searchParams.get("refresh") || "";
 
-  //  fetch function (NO CACHE)
+  //  fetch function 
   const fetchRecords = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/monthly-records", {

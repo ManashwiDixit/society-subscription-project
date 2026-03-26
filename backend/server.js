@@ -7,6 +7,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import dotenv from "dotenv";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 
 const app = express();
@@ -18,7 +19,7 @@ app.use(cors({
 dotenv.config();
 app.use(express.json());
 
-
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/monthly-records", monthlyRoutes)
 app.use("/api/flats", flatRoutes);
 app.use("/api/payments" , paymentRoutes);

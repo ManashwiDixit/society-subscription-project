@@ -48,6 +48,7 @@ model Payment {
   mode   String
   status String
   date   DateTime @default(now())
+ 
 }
 
 model Notification {

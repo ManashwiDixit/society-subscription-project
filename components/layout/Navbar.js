@@ -1,4 +1,10 @@
+"use client";
 export default function Navbar(){
+   const handleLogout = () => {
+      localStorage.removeItem("token");
+
+      window.location.href = "/";
+   };
     return(
        <div className= "bg-white px-6 py-3 shadow-sm flex justify-between items-center" >
 
@@ -14,6 +20,11 @@ export default function Navbar(){
                     Admin
 
                   </span>
+                  <button
+                  onClick={handleLogout}
+                  className = "bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                     Logout
+                  </button>
 
              </div>
 

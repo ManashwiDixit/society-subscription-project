@@ -6,7 +6,7 @@ export const createFlat = async (req, res) => {
   try {
     const { owner, email, phone, type, flatNumber, status } = req.body;
 
-    // 1. create flat
+    // create flat
     const flat = await prisma.flat.create({
       data: {
         owner,
@@ -18,13 +18,13 @@ export const createFlat = async (req, res) => {
       },
     });
 
-    // 2. check if user already exists
+    //  check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
     if (!existingUser) {
-      // 3. create user automatically
+      // create user automatically
       const tempPassword = "Temp@123";
       const hashed = await bcrypt.hash(tempPassword, 10);
 
@@ -43,7 +43,7 @@ export const createFlat = async (req, res) => {
 
     res.json({
       message: "Flat + User created",
-      tempPassword: "Temp@123", // show this
+      tempPassword: "Temp@123", 
     });
 
   } catch (err) {

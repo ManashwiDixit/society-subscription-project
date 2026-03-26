@@ -33,7 +33,8 @@ export const login = async (req,res) => {
           if (!isMatch) {
           return res.status(400).json({ error: "Invalid password" });
           }
-
+           //create token
+           
          const token = jwt.sign(
             {id: user.id, role: user.role},
             SECRET,
@@ -83,7 +84,7 @@ export const createUserFromFlat = async (req, res) => {
     }
 
     //  generate temporary password
-    const tempPassword = "Temp@123"; // or random later
+    const tempPassword = "Temp@123"; 
 
     const hashed = await bcrypt.hash(tempPassword, 10);
 

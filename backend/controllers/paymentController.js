@@ -8,7 +8,7 @@ export const createPayment = async (req, res) => {
 
     let flatData;
 
-    // ✅ ADMIN FLOW (UNCHANGED)
+    // ADMIN FLOW 
     if (user.role === "admin") {
       if (!flat || !month || !amountPaid || !mode) {
         return res.status(400).json({ error: "all fields required" });
@@ -23,7 +23,7 @@ export const createPayment = async (req, res) => {
       }
     }
 
-    // ✅ USER FLOW (NEW SAFE ADDITION)
+    // USER FLOW 
     else {
       if (!amountPaid || !mode) {
         return res.status(400).json({
@@ -63,7 +63,7 @@ if (!month) {
 const formattedMonth =
   month.charAt(0).toUpperCase() + month.slice(1).toLowerCase();
 
-    // ✅ FIND MONTHLY RECORD
+    // FIND MONTHLY RECORD
     let record = await prisma.monthlyRecord.findFirst({
       where: {
         flatId: flatData.id,
@@ -79,7 +79,7 @@ const formattedMonth =
       });
     }
 
-    // ✅ UPDATE PAYMENT
+    //  UPDATE PAYMENT
     const newPaid = (record.amountPaid || 0) + Number(amountPaid);
 
     if (newPaid > record.amount) {
@@ -103,7 +103,7 @@ const formattedMonth =
 
     console.log("New Paid:", newPaid);
 
-    // ✅ SAVE PAYMENT
+    // SAVE PAYMENT
     const payment = await prisma.payment.create({
       data: {
         flat: flatData.flatNumber,

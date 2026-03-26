@@ -1,13 +1,12 @@
-//dumy payment data
-const payments = [
-    {id:1, flat: "A101", owner:"rahul sharma", amount: "₹1500", status:"paid"},
-    {id:2, flat: "B203", owner:"priya singh", amount: "₹1500", status:"pending"},
-    {id:3, flat: "C302", owner:"amit verma", amount: "₹1500", status:"paid"},
-    {id:4, flat: "D404", owner:"sneha gupta", amount: "₹1500", status:"pending"}
 
-];
 
-export default function RecentPaymentsTable(){
+export default function RecentPaymentsTable({payments}){
+   
+    if (!payments || payments.length === 0) {
+      return <p>No recent payments</p>;
+    }
+
+
     return(
         <div className="bg-white p-6 rounded-xl shadow-md mt-8">
             <h2 className="text-lg font-semibold mb-4">
@@ -18,24 +17,24 @@ export default function RecentPaymentsTable(){
                 <thead className="bg-gray-50 py-3" >
                     <tr className="border-b border">
                         <th className="py-3 px-4">Flat</th>
-                        <th className="py-3 px-4" >Owner</th>
+                        
                         <th className="py-3 px-4">Amount</th>
+                        <th className="py-3 px-4">Mode</th>
                         <th className="py-3">Status</th>
 
                     </tr>
                 </thead>
                 <tbody className="border">
-                    {payments.map((payment)=>{
+                    {payments.map((p, index)=>{
                         return (
-                            <tr key={payment.id} className="border-b hover:bg-gray-59">
-                            <td className="py-3 px-4">{payment.flat}</td>
-                            <td className="py-3 px-4">{payment.owner}</td>
-                            <td className="py-3 px-4">{payment.amount}</td>
-
-                            <td>
-                                <span className = { payment.status==="paid"?"text-green-600":"text-yellow-600"}>
-                                 {payment.status}
-                                </span>
+                            <tr key={p.id} className="border-b hover:bg-gray-59">
+                            <td className="py-3 px-4">{p.flat}</td>
+                            
+                            <td className="py-3 px-4">{p.amount}</td>
+                            <td className="py-3 px-4">{p.mode}</td>
+                            <td className="py-3 px-4 ">
+                                <span className=" bg-green-400 py-2 px-4">  {p.status}</span>
+                             
                             </td>
 
                         </tr>

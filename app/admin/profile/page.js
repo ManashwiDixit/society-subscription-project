@@ -1,159 +1,130 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminProfilePage() {
-
+  const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
-    name: "Admin User",
-    email: "admin@email.com",
-    phone: "9876543210",
+    name: "",
+    email: "",
+    phone: "",
   });
 
-  const [passwords, setPasswords] = useState({
-    current: "",
-    new: "",
-  });
+  useEffect(() => {
+    fetch("http://localhost:5000/api/users/profile", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUser(data);
+        setForm({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+        });
+      });
+  }, []);
 
   const handleSave = () => {
     alert("Profile updated ✅");
     setIsEditing(false);
   };
 
-  const handlePassword = () => {
-    if (!passwords.current || !passwords.new) {
-      alert("Fill all fields");
-      return;
-    }
-
-    alert("Password changed 🔒");
-
-    setPasswords({ current: "", new: "" });
-    setShowPassword(false);
-  };
+  if (!user) return <p className="p-6">Loading...</p>;
 
   return (
-    <div className="p-6">
+    <div className="p-8 flex justify-center">
 
-      <h1 className="text-2xl font-bold mb-6">Admin Profile</h1>
+      <div className="w-full max-w-3xl space-y-6">
 
-      {/* PROFILE CARD */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-6 text-center">
+        {/* PROFILE CARD */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 flex items-center gap-6">
 
-        <div className="w-20 h-20 mx-auto bg-blue-500 text-white flex items-center justify-center rounded-full text-2xl font-bold">
-          {form.name.charAt(0)}
+          {/* Avatar */}
+          <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-500 text-white flex items-center justify-center rounded-full text-2xl font-bold shadow">
+            {user.name.charAt(0)}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1">
+
+            {!isEditing ? (
+              <>
+                <h2 className="text-xl font-semibold">{user.name}</h2>
+                <p className="text-gray-500">{user.email}</p>
+                <p className="text-gray-500">{user.phone}</p>
+
+                <span className="inline-block mt-2 text-xs bg-gray-200 px-3 py-1 rounded-full">
+                  {user.role}
+                </span>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  value={form.name}
+                  onChange={(e) =>
+                    setForm({ ...form, name: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                />
+                <input
+                  value={form.email}
+                  onChange={(e) =>
+                    setForm({ ...form, email: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                />
+                <input
+                  value={form.phone}
+                  onChange={(e) =>
+                    setForm({ ...form, phone: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Action */}
+          <div>
+            {!isEditing ? (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+              >
+                Edit
+              </button>
+            ) : (
+              <button
+                onClick={handleSave}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+              >
+                Save
+              </button>
+            )}
+          </div>
         </div>
 
-        {!isEditing ? (
-          <>
-            <h2 className="text-xl font-semibold mt-4">{form.name}</h2>
-            <p className="text-gray-600">{form.email}</p>
-            <p className="text-gray-600">{form.phone}</p>
+        {/* SECURITY CARD */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 flex justify-between items-center">
 
-            <button
-              onClick={() => setIsEditing(true)}
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Edit Profile
-            </button>
-          </>
-        ) : (
-          <div className="mt-4 space-y-3">
-
-            <input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="border w-full p-2 rounded"
-            />
-
-            <input
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="border w-full p-2 rounded"
-            />
-
-            <input
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="border w-full p-2 rounded"
-            />
-
-            <button
-              onClick={handleSave}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              Save Changes
-            </button>
-
+          <div>
+            <h3 className="text-lg font-semibold">Security</h3>
+            <p className="text-gray-500 text-sm">
+              Update your password regularly
+            </p>
           </div>
-        )}
 
-      </div>
-
-      {/* PASSWORD SECTION */}
-      <div className="bg-white p-6 rounded-xl shadow-md max-w-md">
-
-        <h2 className="text-lg font-semibold mb-4">Security</h2>
-
-        {!showPassword ? (
-          <button
-            onClick={() => setShowPassword(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
+          <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
             Change Password
           </button>
-        ) : (
-          <div className="space-y-3">
-
-            <input
-              type="password"
-              placeholder="Current Password"
-              value={passwords.current}
-              onChange={(e) =>
-                setPasswords({ ...passwords, current: e.target.value })
-              }
-              className="border w-full p-2 rounded"
-            />
-
-            <input
-              type="password"
-              placeholder="New Password"
-              value={passwords.new}
-              onChange={(e) =>
-                setPasswords({ ...passwords, new: e.target.value })
-              }
-              className="border w-full p-2 rounded"
-            />
-
-            <div className="flex gap-3">
-
-              <button
-                onClick={handlePassword}
-                className="bg-green-600 text-white px-4 py-2 rounded"
-              >
-                Update
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowPassword(false);
-                  setPasswords({ current: "", new: "" });
-                }}
-                className="bg-gray-200 px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-
-            </div>
-
-          </div>
-        )}
+        </div>
 
       </div>
-
     </div>
   );
 }
