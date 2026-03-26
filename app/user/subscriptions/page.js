@@ -1,33 +1,37 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function UserSubscriptions(){
 
-  // temporary data
-  const records = [
-    {
-      id:1,
-      month:"January",
-      amount:1500,
-      status:"Paid",
-      mode:"UPI"
-    },
-    {
-      id:2,
-      month:"February",
-      amount:1500,
-      status:"Pending",
-      mode:"-"
-    },
-    {
-      id:3,
-      month:"March",
-      amount:1500,
-      status:"paid",
-      mode:"Cash"
-    }
-  ];
+  const [records , setRecords] = useState([]);
+
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+      
+     fetch("http://localhost:5000/api/monthly-records/user", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("USER RECORDS:", data);
+        if (Array.isArray(data)){
+          setRecords(data);
+        }
+        else if (data){
+          setRecords([data]);
+        }
+          
+          else
+            {setRecords([]);}
+        
+      })
+      .catch((err) => console.log(err));
+
+  }, [])
 
   const router = useRouter();
 
@@ -48,7 +52,7 @@ export default function UserSubscriptions(){
               <th className="py-2">Month</th>
               <th>Amount</th>
               <th>Status</th>
-              <th>Mode</th>
+              
               <th>Action</th>
             </tr>
           </thead>
@@ -74,7 +78,7 @@ export default function UserSubscriptions(){
                   </span>
                 </td>
 
-                <td>{record.mode}</td>
+                
 
                 <td>
                   {record.status === "Pending" ? (

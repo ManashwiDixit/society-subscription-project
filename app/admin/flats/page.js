@@ -18,10 +18,15 @@ export default function FlatsPage(){
    const [flats, setFlats] = useState([]);
    
    useEffect(() => {
-       fetch("http://localhost:5000/api/flats")
+      const token = localStorage.getItem("token");
+       fetch("http://localhost:5000/api/flats",{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+       })
          .then(res => res.json())
          .then(data => {
-              console.log("FLATS from api:", data); 
+              //console.log("FLATS from api:", data); 
     
             setFlats(data)})
          .catch(err => console.log(err));
@@ -50,7 +55,7 @@ export default function FlatsPage(){
      const handleAddFlat = async (newFlat) => {
          try {
             const token = localStorage.getItem("token");
-            console.log("TOKEN:", token);
+           // console.log("TOKEN:", token);
 
          const res = await fetch("http://localhost:5000/api/flats", {
          method: "POST",

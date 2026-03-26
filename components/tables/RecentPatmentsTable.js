@@ -15,7 +15,7 @@ export default function RecentPaymentsTable({payments}){
 
             <table className="w-full text-left border-collapse"> 
                 <thead className="bg-gray-50 py-3" >
-                    <tr className="border-b border">
+                    <tr className="border-b border bg-white">
                         <th className="py-3 px-4">Flat</th>
                         
                         <th className="py-3 px-4">Amount</th>

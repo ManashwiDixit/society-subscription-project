@@ -19,7 +19,7 @@ export default function Home(){
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("DASHBOARD DATA:", data);
+       // console.log("DASHBOARD DATA:", data);
         setData(data);
       })
       .catch((err) => console.log(err));

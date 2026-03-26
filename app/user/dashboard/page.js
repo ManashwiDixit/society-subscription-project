@@ -25,7 +25,7 @@ export default function UserDashboard(){
     if(!record) return <p>Loading...</p>
 
     return(
-        <div className="p-6">
+        <div className="p-6 bg-blue-50">
             <h1 className="text-2xl font-bold mb-6">
                 Dashboard
             </h1>
@@ -47,8 +47,8 @@ export default function UserDashboard(){
                   <p className="text-gray-500">Status</p>
                   <span className={`px-3 py-1 rounded text-sm ${
                     record.status === "Paid"
-                     ? "bg-green-100 text-green-700"
-                     : "bg-yellow-100 text-yellow-700"
+                     ? "bg-green-300 text-green-700 font-bold"
+                     : "bg-yellow-300 text-yellow-700"
                      }`}>
                     {record.status}
                    </span>

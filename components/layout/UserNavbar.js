@@ -8,17 +8,17 @@ export default function UserNavbar() {
 
       window.location.href = "/";
    };
-   
+
   return (
-    <div className="bg-white shadow-md px-6 py-3 flex justify-between items-center">
+    <div className=" bg-blue-100 shadow-md px-6 py-3 flex justify-between items-center">
 
       <h1 className="font-bold text-lg">Society App</h1>
 
       <div className="flex gap-6">
 
-        <Link className="px-4 py-2 rounded-lg hover:bg-blue-200" href="/user/dashboard">Dashboard</Link>
-        <Link className="px-4 py-2 rounded-lg hover:bg-blue-200" href="/user/subscriptions">Subscriptions</Link>
-        <Link className="px-4 py-2 rounded-lg hover:bg-blue-200" href="/user/profile">Profile</Link>
+        <Link className="px-4 py-2 rounded-lg hover:bg-blue-400" href="/user/dashboard">Dashboard</Link>
+        <Link className="px-4 py-2 rounded-lg hover:bg-blue-400" href="/user/subscriptions">Subscriptions</Link>
+        <Link className="px-4 py-2 rounded-lg hover:bg-blue-400" href="/user/profile">Profile</Link>
 
         <button 
         onClick={handleLogout}

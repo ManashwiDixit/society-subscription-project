@@ -6,7 +6,7 @@ export default function Navbar(){
       window.location.href = "/";
    };
     return(
-       <div className= "bg-white px-6 py-3 shadow-sm flex justify-between items-center" >
+       <div className= "bg-white px-6 py-3 shadow-sm flex justify-between items-center bg-gradient-to-b from-indigo-50  to-blue-100" >
 
              <h2 className="text-lg font-semibold">
                 Admin Dashboard
