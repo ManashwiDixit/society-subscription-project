@@ -11,9 +11,9 @@ export default function SubscriptionDetail(){
 const record = {
     month,
     amount:1500,
-    status:"Paid",
+    status:"Partial",
     mode:"UPI",
-    date:"10 Jan 2026"
+    date:"2 april 2026",
   };
 
   return(

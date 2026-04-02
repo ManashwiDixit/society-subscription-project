@@ -1,45 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState , useEffect } from "react";
 
 export default function ReportsPage(){
      
-    const [records] = useState([
-        {
-            id:1,
-            flat:"A101",
-            month:"January",
-            amount:1500,
-            status:"Paid"
-        },
-           {
-            id:2,
-            flat:"B203",
-            month:"January",
-            amount:1500,
-            status:"Pending"
-        },
+    const [report, setReport] = useState(null);
+    useEffect( () => {
+        const token = localStorage.getItem("token");
 
-           {
-            id:3,
-            flat:"C302",
-            month:"February",
-            amount:1000,
-            status:"Pending"
-        },
-    ]
-    );
+        fetch("http://localhost:5000/api/reports",{
+             headers: {
+               Authorization: `Bearer ${token}`,
+            },
+        }).then(res => res.json())
+        .then(data => setReport(data))
+        .catch(err => console.log(err));
+    }, []);
 
-    //calculating totalcollection,totalflats and pendingamount
-    const totalCollection =records.filter((record)=>record.status === "Paid")
-    .reduce((sum,r)=>sum+r.amount,0);
+     if (!report) return <p>Loading...</p>;
 
-    const pendingAmount = records.filter((record)=>record.status === "Pending")
-    .reduce((sum,r)=>sum + r.amount , 0);
-
-    const totalFlats = new Set(records.map((record)=>record.flat)).size
-
-    const totalExpected = records.reduce((sum,r)=>sum + r.amount ,0);
 
     return(
         <div className="p-6">
@@ -52,7 +31,7 @@ export default function ReportsPage(){
 
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <p className="text-gray-500">Total Expected Amount</p>
-                <h2 className="text-2xl font-bold">₹{totalExpected}</h2>
+                <h2 className="text-2xl font-bold">₹{report.totalExpected}</h2>
 
             </div>
 
@@ -60,19 +39,19 @@ export default function ReportsPage(){
 
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <p className="text-gray-500">Total Collection</p>
-                <h2 className="text-2xl font-bold">₹{totalCollection}</h2>
+                <h2 className="text-2xl font-bold">₹{report.totalCollection}</h2>
 
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-md">
                 <p className="text-gray-500">Pending Amount</p>
-                <h2 className="text-2xl font-bold">₹{pendingAmount}</h2>
+                <h2 className="text-2xl font-bold">₹{report.pending}</h2>
 
             </div>
 
              <div className="bg-white p-6 rounded-xl shadow-md">
                 <p className="text-gray-500">Total Flats</p>
-                <h2 className="text-2xl font-bold">{totalFlats}</h2>
+                <h2 className="text-2xl font-bold">{report.totalFlats}</h2>
 
             </div>
 

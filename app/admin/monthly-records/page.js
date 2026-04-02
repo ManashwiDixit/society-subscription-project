@@ -20,7 +20,10 @@ export default function MonthlyRecordsPage() {
       });
 
       const data = await res.json();
-      console.log("FRESH DATA ", data);
+     // console.log("FRESH DATA ", data);
+      if (!Array.isArray(data)) {
+  console.log("API ERROR:", data);
+}
 
       setRecords(data);
     } catch (err) {
@@ -60,12 +63,16 @@ export default function MonthlyRecordsPage() {
   };
 
   //  filter by month
-  const filteredRecords = selectedMonth
-    ? records.filter(
-        (r) =>
-          (r.month || "").toLowerCase() === selectedMonth.toLowerCase()
-      )
-    : records;
+ const filteredRecords = selectedMonth && Array.isArray(records)
+  ? records.filter(
+      (r) =>
+        (r.month || "").toLowerCase() === selectedMonth.toLowerCase()
+    )
+  : Array.isArray(records)
+  ? records
+  : [];
+
+    
 
   return (
     <div className="p-6">

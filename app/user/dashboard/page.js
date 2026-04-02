@@ -18,7 +18,13 @@ export default function UserDashboard(){
     }).then(res => res.json())
     .then(data => {
         console.log("USER RECORDED", data);
-        setRecord(data);
+
+        if(Array.isArray(data)) {
+            setRecord(data[0]);
+        } else{
+           setRecord(data);
+        }
+       
     })
         
     }, []);
@@ -26,6 +32,7 @@ export default function UserDashboard(){
 
     return(
         <div className="p-6 bg-blue-50">
+            
             <h1 className="text-2xl font-bold mb-6">
                 Dashboard
             </h1>

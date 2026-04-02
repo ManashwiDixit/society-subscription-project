@@ -8,12 +8,14 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import dotenv from "dotenv";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
 
 const app = express();
 
 app.use(cors({
-  origin: "*",   
+  origin:"http://localhost:3000",
+  credentials: true,  
 }));
 
 dotenv.config();
@@ -26,6 +28,7 @@ app.use("/api/payments" , paymentRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/reports", reportRoutes);
 
 app.listen(5000,()=>{
     console.log("Server running on port 5000");

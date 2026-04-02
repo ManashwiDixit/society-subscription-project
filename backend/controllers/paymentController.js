@@ -63,7 +63,7 @@ if (!month) {
 const formattedMonth =
   month.charAt(0).toUpperCase() + month.slice(1).toLowerCase();
 
-    // FIND MONTHLY RECORD
+    // find monthly record
     let record = await prisma.monthlyRecord.findFirst({
       where: {
         flatId: flatData.id,
@@ -79,9 +79,9 @@ const formattedMonth =
       });
     }
 
-    //  UPDATE PAYMENT
+    //  update payment
     const newPaid = (record.amountPaid || 0) + Number(amountPaid);
-
+// validation
     if (newPaid > record.amount) {
       return res.status(400).json({
         error: "Payment exceeds total amount",

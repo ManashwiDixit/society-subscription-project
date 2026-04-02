@@ -12,7 +12,12 @@ const [flats, setFlats] = useState([]);
 const [amountPaid, setAmountPaid] = useState("");                                                                                                                                                                                                                                                                       
 
 useEffect(() => {
-  fetch("http://localhost:5000/api/flats")
+  const token = localStorage.getItem("token");
+  fetch("http://localhost:5000/api/flats",{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    }
+  })
     .then(res => res.json())
     .then(data => setFlats(data))
     .catch(err => console.log(err));
@@ -41,7 +46,7 @@ try{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({
         flat,
@@ -101,7 +106,7 @@ return(
              ))}
           </select>
 
-{/* Month */}
+        {/* Month */}
           <select
             value={month}
             onChange={(e)=>setMonth(e.target.value)}

@@ -8,7 +8,7 @@ const router = express.Router();
 
 
 router.post("/login", login);
-router.post("/create-user", createUserFromFlat);
+router.post("/create-user",adminOnly, createUserFromFlat);
 router.post("/flats", auth, adminOnly, createFlat);
 
 export default router;

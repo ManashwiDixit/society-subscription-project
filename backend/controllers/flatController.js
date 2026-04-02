@@ -97,12 +97,23 @@ export const updateFlat = async (req,res)=>{
 export const deleteFlat = async (req,res)=>{
     try{
         const {id} = req.params;
-
-        const deletedFlat = await prisma.flat.delete({
-            where:{id}
+// delete  dependent data first monthly record
+         await prisma.monthlyRecord.deleteMany({
+            where:{ flatId: id},
         });
 
-        res.json(deletedFlat);
+      
+        await prisma.user.deleteMany({
+          where: {flatId : id},
+        })
+
+        // now delte flat
+        await prisma.flat.delete({
+          where: {id},
+        });
+
+        res.json({message: "Flat deleted successfully"});
+       // console.log("deleted", id);
     }
     catch(err){
         res.status(500).json({error: err.message});

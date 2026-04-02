@@ -2,6 +2,7 @@ import prisma from "../config/prisma.js";
 
 export const getRecords = async (req ,res)=>{
     try{
+        //get all monthly records and their related flat
         const records = await prisma.monthlyRecord.findMany({
             include: {flat:true}
         });
@@ -105,14 +106,28 @@ export const generateMonthlyRecords = async (req,res)=>{
                 const user = await prisma.user.findUnique({
                     where: {id: userId}
                 });
-                const record = await prisma.monthlyRecord.findFirst({
+                const currentMonth = new Date().toLocaleString("default", {
+                    month: "long",
+                });
+                let  record = await prisma.monthlyRecord.findFirst({
                     where: {
-                        flatId: user.flatId
+                        flatId: user.flatId,
+                        month: currentMonth,
                     },
-                    orderBy: { createdAt: "desc"}
+                   
                 });
 
-                res.json(record);
+               if (!record) {
+                  return res.json({
+                  month: "Not Generated",
+                  amount: 0,
+                  status: "Pending",
+                  });
+                 }
+
+
+
+                res.json(record ? [record]: []);
             } catch(err){
                 console.log(err);
                 res.status(500).json({error: "Error fetching user record"});
